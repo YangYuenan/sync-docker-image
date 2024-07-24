@@ -2,6 +2,7 @@
 ### 0.前言简述
 描述：使用Github-Action同步docker镜像到阿里云个人镜像仓库中
 此项目fork于：https://github.com/WeiyiGeek/action-sync-images/
+使用此项目同步docker镜像需要先申请阿里云的容器镜像服务，此服务个人版提供三个命名空间，可以存储300个镜像
 ---
 
 ### 1.使用Github Action优雅的同步国外镜像到个人DockerHub中
@@ -13,7 +14,7 @@ Step 1.登录Gitub，点击右上角`+`,然后创建一个名为`action-sync-ima
 ![weiyigeek.top-创建Github仓库图](https://img.weiyigeek.top/2023/5/20230727092416.png)
 
 
-Step 2.首先点击仓库里中的settins菜单，选择安全选项卡，点击Action，然后将会进入到 `Actions secrets and variables`，此时为了账号密码，我们需要提前设置我们Docker hub登录的账号密码到项目的secrets中（PS: fork了此项目的朋友可以自行将对应DocekrHub设置为自己的账号密码）。
+Step 2.首先点击仓库里中的settins菜单，选择安全选项卡，点击Action，然后将会进入到 `Actions secrets and variables`，此时为了账号密码，我们需要提前设置我们阿里云登录的账号密码到项目的secrets中（PS: fork了此项目的朋友可以自行将对应DocekrHub设置为自己的账号密码）。
 
 ![weiyigeek.top-创建action使用的secrets图](https://img.weiyigeek.top/2023/5/20230727094133.png)
 
@@ -22,28 +23,7 @@ Step 3.然后点击仓库里中的Action菜单，在选择一个 simple workflow
 
 ![weiyigeek.top-快速创建 simple workflows 图](https://img.weiyigeek.top/2023/5/20230727092651.png)
 
-
-Step 4.此处我们拉取kubernetes 最新的 V1.27.4 版本，使用kubeadm搭建集群此时我们要在Github Action中使用skopeo工具将`registry.k8s.io`仓库中的镜像同步到docker.io，执行下述shell命令，我们提前获取所需镜像并拼接拷贝命令，若需拷贝到自己的hub仓库请执行自行修改`DOCKER_HUBUSERURL`，此处我dockerhub用户名是`weiyigeek`。
-```bash
-K8SVERSION=1.27.4
-DOCKER_HUBUSERURL=docker.io/weiyigeek
-kubeadm config images list --kubernetes-version=${K8SVERSION} 2>/dev/null > K8sv1.27.4.txt
-for i in `cat K8sv1.27.4.txt`;do
-  echo skopeo copy --all docker://${i} docker://${DOCKER_HUBUSERURL}/${i##*/}
-done
-
-# 执行结果:
-skopeo copy --all docker://registry.k8s.io/kube-apiserver:v1.27.4 docker://docker.io/weiyigeek/kube-apiserver:v1.27.4
-skopeo copy --all docker://registry.k8s.io/kube-controller-manager:v1.27.4 docker://docker.io/weiyigeek/kube-controller-manager:v1.27.4
-skopeo copy --all docker://registry.k8s.io/kube-scheduler:v1.27.4 docker://docker.io/weiyigeek/kube-scheduler:v1.27.4
-skopeo copy --all docker://registry.k8s.io/kube-proxy:v1.27.4 docker://docker.io/weiyigeek/kube-proxy:v1.27.4
-skopeo copy --all docker://registry.k8s.io/pause:3.9 docker://docker.io/weiyigeek/pause:3.9
-skopeo copy --all docker://registry.k8s.io/etcd:3.5.7-0 docker://docker.io/weiyigeek/etcd:3.5.7-0
-skopeo copy --all docker://registry.k8s.io/coredns/coredns:v1.10.1 docker://docker.io/weiyigeek/coredns:v1.10.1
-
-```
-
-Step 5.将上述执行结果放置在`Use Skopeo Tools Sync Image to Docker Hub`子步骤下，然后将下述工作流的脚本复制粘贴到`sync-images-dockerHub-example.yaml`文件中，然后点击`commit changes`进行提交即可，注意下面是使用skopeo工具进行同步，为啥要使用此工具可以参考作者的【如何使用Skopeo做一个优雅的镜像搬运工】此篇文章地址: https://mp.weixin.qq.com/s/_r9WLMAIbOFEzj7-OWPWDw。
+Step 4.将上述执行结果放置在`Use Skopeo Tools Sync Image to Docker Hub`子步骤下，然后将下述工作流的脚本复制粘贴到`sync-images-dockerHub-example.yaml`文件中，然后点击`commit changes`进行提交即可，注意下面是使用skopeo工具进行同步。
 
 ```bash
 # 工作流名称
@@ -74,38 +54,31 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v2.2.0
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: registry.cn-beijing.aliyuncs.com
+        username: ${{ secrets.ALI_USERNAME }}
+        password: ${{ secrets.ALI_PASSWORD }}
         logout: false
-    
-    # 使用shell命令批量同步所需的镜像到dockerHub中
+        
     - name: Use Skopeo Tools Sync Image to Docker Hub
       run: |
         #!/usr/bin/env bash
-        skopeo copy --all docker://registry.k8s.io/kube-apiserver:v1.27.4 docker://docker.io/weiyigeek/kube-apiserver:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-controller-manager:v1.27.4 docker://docker.io/weiyigeek/kube-controller-manager:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-scheduler:v1.27.4 docker://docker.io/weiyigeek/kube-scheduler:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-proxy:v1.27.4 docker://docker.io/weiyigeek/kube-proxy:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/pause:3.9 docker://docker.io/weiyigeek/pause:3.9
-        skopeo copy --all docker://registry.k8s.io/etcd:3.5.7-0 docker://docker.io/weiyigeek/etcd:3.5.7-0
-        skopeo copy --all docker://registry.k8s.io/coredns/coredns:v1.10.1 docker://docker.io/weiyigeek/coredns:v1.10.1
+        #skopeo copy docker://mysql:5.7 docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/mysql:5.7
+        #skopeo copy docker://redis:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/redis:latest
+        skopeo copy docker://spack/centos7:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/centos7:latest
 ```
 
 ![weiyigeek.top-sync-images-dockerHub-example图](https://img.weiyigeek.top/2023/5/20230727103541.png)
 
 
-Step 6.commit提交后将会触发工作流执行，此时我们回到仓库的action页面，点击如下图所示的，查看此工作流执行情况，是否有同步失败的情况。
+Step 5.commit提交后将会触发工作流执行，此时我们回到仓库的action页面，点击如下图所示的，查看此工作流执行情况，是否有同步失败的情况。
 
 ![weiyigeek.top-查看工作流执行情况图](https://img.weiyigeek.top/2023/5/20230727103839.png)
 
-Step 7.最后登录我的Docker Hub ( https://hub.docker.com/r/weiyigeek/ )验证是否已经同步过来, 可以从下图看到已经同步过来了。此后我们便可以使用 `docker pull` 命令或者是 `ctr image pull` 命令拉取镜像即可。
+Step 6.最后登录我的阿里云镜像仓库 ( [阿里云镜像仓库](https://cr.console.aliyun.com/cn-beijing/instance/repositories) )验证是否已经同步过来, 可以从下图看到已经同步过来了。此后我们便可以使用 `docker pull` 命令拉取镜像即可。
 
-![weiyigeek.top-验证镜像同步图](https://img.weiyigeek.top/2023/5/20230727105454.png)
+温馨提示：如需更换同步的镜像，只需将流程文件的最后一行中的镜像名称替换即可。
 
-
-温馨提示: 默认`Docker Hub`我们创建的账号都是免费计划，虽然没有空间的大小限制，但是有下载次数以及下载速度的限制，所以有条件的尽量自行使用内部私有镜像仓库。
-
-至此，使用Github Action + Skopeo 工具优雅的同步镜像到dockerHub中完毕!
+至此，使用Github Action + Skopeo 工具优雅的同步镜像到阿里个人镜像仓库中完毕!
 
 
 
