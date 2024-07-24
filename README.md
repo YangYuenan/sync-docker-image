@@ -1,7 +1,7 @@
 
 ### 0.前言简述
 描述：使用Github-Action同步docker镜像到阿里云个人镜像仓库中
-此项目fork于：https://github.com/WeiyiGeek/action-sync-images/
+此项目fork于：https://github.com/WeiyiGeek/action-sync-images/ 
 使用此项目同步docker镜像需要先申请阿里云的容器镜像服务，此服务个人版提供三个命名空间，可以存储300个镜像
 ---
 
