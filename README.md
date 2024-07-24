@@ -1,24 +1,11 @@
 
 ### 0.前言简述
-描述：使用Github-Action或者Aliyun镜像服务同步镜像到个人DockerHub或者私有镜像仓库中
-
-**作者主页:** https://www.weiyigeek.top
-**作者博客:** https://blog.weiyigeek.top
-**作者公众号:** 全栈工程师修炼指南
-
+描述：使用Github-Action同步docker镜像到阿里云个人镜像仓库中
+此项目fork于：https://github.com/WeiyiGeek/action-sync-images/
 ---
 
 ### 1.使用Github Action优雅的同步国外镜像到个人DockerHub中
 描述: 由于国内上网环境的原因，在部署某些云原生应用时，通常会遇到镜像无法直接拉取，例如 `k8s.io、gcr.io、quay.io` 等国外仓库中的镜像，在最开始的做法是使用他人同步到dockerHub仓库中的此版本镜像，或者是采用国外的vps虚拟主机使用`docker pull/docker tag/docker push`命令的方式复制到dockerHub仓库，但是对于作者来说这两种都不是最优解，因为有可能他人没有同步到你所需要的版本或者说你根本就没有VPS，此时应该怎么办呢。
-
-虽然前面作者写了一篇【如何使用Aliyun容器镜像服务对海外gcr、quay仓库镜像进行镜像拉取构建?】的文章地址：
-https://mp.weixin.qq.com/s/oQ82YWYRnSIUp-RXLdNS8A 
-
-但是作者仍然觉得不够优雅，并且不能批量的同步，此处作者在使用Github-Action构建项目时，突发奇想为何不用Github Action+Skopeo工具来同步镜像呢，说做就做，遂有了此篇文章。
-
-
-Github项目地址(欢迎大家Fork): https://github.com/WeiyiGeek/action-sync-images/
-
 
 **操作流程:**
 Step 1.登录Gitub，点击右上角`+`,然后创建一个名为`action-sync-images`的Github仓库。
@@ -120,27 +107,6 @@ Step 7.最后登录我的Docker Hub ( https://hub.docker.com/r/weiyigeek/ )验�
 
 至此，使用Github Action + Skopeo 工具优雅的同步镜像到dockerHub中完毕!
 
-<br/>
-
-### 2.使用Aliyun容器镜像服务拉取同步
-
-如何使用Aliyun容器镜像服务对海外gcr、quay仓库镜像进行镜像拉取构建?
-
-参考文章：https://mp.weixin.qq.com/s/oQ82YWYRnSIUp-RXLdNS8A
-
-```bash
-k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner  > registry.cn-hangzhou.aliyuncs.com/weiyigeek/nfs-subdir-external-provisioner:v4.0.2
-
-gcr.io/kaniko-project/executor:latest ->  registry.cn-hangzhou.aliyuncs.com/weiyigeek/kaniko-executor:latest
-```
-
----
-
-<span style="color:red">温馨提示</span>：微信小程序【极客全栈修炼】上线了，可以直接在微信中浏览唯一极客技术博客（ https://blog.weiyigeek.top ）中的相关文章，涉及网络安全、系统运维、应用开发、物联网实战、全栈文章，希望和大家一起学习进步，欢迎浏览交流！  
-
-<div align="center">
-  <img src="https://www.weiyigeek.top/img/share.jpg" alt="个人主页站点-微信公众号-微信小程序【极客全栈修炼】" />
-</div>
 
 
 
