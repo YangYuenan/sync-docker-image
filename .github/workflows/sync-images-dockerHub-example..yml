@@ -36,5 +36,5 @@ jobs:
         #!/usr/bin/env bash
         #skopeo copy docker://mysql:5.7 docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/mysql:5.7
         #skopeo copy docker://redis:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/redis:latest
-        skopeo copy docker://spack/centos7:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/centos7:latest
+        skopeo copy docker://etherpad/etherpad:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/etherpad:latest
  
