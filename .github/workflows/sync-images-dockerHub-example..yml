@@ -36,6 +36,6 @@ jobs:
         #!/usr/bin/env bash
         #skopeo copy docker://mysql:5.7 docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/mysql:5.7
         #skopeo copy docker://redis:latest docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/redis:latest
-        skopeo copy docker://gitlab/gitlab-runner:v13.0.6 docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/gitlab-runner:v13.0.6
+        skopeo copy docker://gitlab/gitlab-runner:v13.0.2 docker://registry.cn-beijing.aliyuncs.com/yyndocker-image/gitlab-runner:v13.0.2
 
  
